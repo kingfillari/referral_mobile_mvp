@@ -1,0 +1,17 @@
+name: referral_mobile_mvp
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  sqflite: ^2.3.0
+  path: ^1.9.0
+  http: ^1.2.0
+  connectivity_plus: ^5.0.2
+  shared_preferences: ^2.2.2
+
+flutter:
+  uses-material-design: true
