@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../services/sync_service.dart';
 import 'patient_registration_screen.dart';
 import 'create_referral_screen.dart';
 import 'referral_tracking_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
+
+  final SyncService syncService = SyncService();
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,6 @@ class DashboardScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-
           children: [
 
             ElevatedButton(
@@ -50,6 +52,13 @@ class DashboardScreen extends StatelessWidget {
                     builder: (_) => ReferralTrackingScreen(),
                   ),
                 );
+              },
+            ),
+
+            ElevatedButton(
+              child: Text("Sync Data"),
+              onPressed: () {
+                syncService.syncData();
               },
             ),
 
