@@ -1,10 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../utils/connectivity_service.dart';
 import 'database_service.dart';
 
 class SyncService {
 
   final dbService = DatabaseService();
+  final connectivityService = ConnectivityService();
+
+  Future syncData() async {
+
+    bool online = await connectivityService.hasInternet();
+
+    if (!online) {
+      return;
+    }
+
+    await syncPatients();
+    await syncReferrals();
+  }
 
   Future syncPatients() async {
 
@@ -19,7 +33,7 @@ class SyncService {
     for (var patient in patients) {
 
       await http.post(
-        Uri.parse("https://your-api.com/patients"),
+        Uri.parse("https://example.com/api/patients"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(patient),
       );
@@ -29,6 +43,33 @@ class SyncService {
         {"synced": 1},
         where: "id = ?",
         whereArgs: [patient["id"]],
+      );
+    }
+  }
+
+  Future syncReferrals() async {
+
+    final db = await dbService.database;
+
+    final referrals = await db.query(
+      "referrals",
+      where: "synced = ?",
+      whereArgs: [0],
+    );
+
+    for (var referral in referrals) {
+
+      await http.post(
+        Uri.parse("https://example.com/api/referrals"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(referral),
+      );
+
+      await db.update(
+        "referrals",
+        {"synced": 1},
+        where: "id = ?",
+        whereArgs: [referral["id"]],
       );
     }
   }
