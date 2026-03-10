@@ -1,76 +1,40 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../utils/connectivity_service.dart';
-import 'database_service.dart';
+import 'sqlite_service.dart';
+import 'api_service.dart';
+import '../models/patient_model.dart';
+import '../models/referral_model.dart';
 
+/// Handles offline synchronization
 class SyncService {
+  final SQLiteService _sqlite = SQLiteService();
+  final ApiService _api = ApiService();
 
-  final dbService = DatabaseService();
-  final connectivityService = ConnectivityService();
-
-  Future syncData() async {
-
-    bool online = await connectivityService.hasInternet();
-
-    if (!online) {
-      return;
+  /// Sync patients
+  Future<void> syncPatients() async {
+    final patients = await _sqlite.getPatients();
+    for (var patient in patients) {
+      try {
+        await _api.post('/patients', patient.toJson());
+      } catch (e) {
+        print('Sync patient failed: $e');
+      }
     }
+  }
 
+  /// Sync referrals
+  Future<void> syncReferrals() async {
+    final referrals = await _sqlite.getReferrals();
+    for (var referral in referrals) {
+      try {
+        await _api.post('/referrals', referral.toJson());
+      } catch (e) {
+        print('Sync referral failed: $e');
+      }
+    }
+  }
+
+  /// Full sync
+  Future<void> syncAll() async {
     await syncPatients();
     await syncReferrals();
-  }
-
-  Future syncPatients() async {
-
-    final db = await dbService.database;
-
-    final patients = await db.query(
-      "patients",
-      where: "synced = ?",
-      whereArgs: [0],
-    );
-
-    for (var patient in patients) {
-
-      await http.post(
-        Uri.parse("https://example.com/api/patients"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(patient),
-      );
-
-      await db.update(
-        "patients",
-        {"synced": 1},
-        where: "id = ?",
-        whereArgs: [patient["id"]],
-      );
-    }
-  }
-
-  Future syncReferrals() async {
-
-    final db = await dbService.database;
-
-    final referrals = await db.query(
-      "referrals",
-      where: "synced = ?",
-      whereArgs: [0],
-    );
-
-    for (var referral in referrals) {
-
-      await http.post(
-        Uri.parse("https://example.com/api/referrals"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(referral),
-      );
-
-      await db.update(
-        "referrals",
-        {"synced": 1},
-        where: "id = ?",
-        whereArgs: [referral["id"]],
-      );
-    }
   }
 }
