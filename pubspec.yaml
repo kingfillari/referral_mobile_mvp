@@ -1,4 +1,9 @@
 name: referral_mobile_mvp
+description: Mobile MVP for Hospital Referral Management System (RMS)
+
+publish_to: "none"
+
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -7,11 +12,50 @@ dependencies:
   flutter:
     sdk: flutter
 
-  sqflite: ^2.3.0
-  path: ^1.9.0
+  cupertino_icons: ^1.0.8
+
+  # HTTP requests
   http: ^1.2.0
-  connectivity_plus: ^5.0.2
-  shared_preferences: ^2.2.2
+
+  # SQLite offline database
+  sqflite: ^2.3.3
+  path: ^1.9.0
+
+  # Secure token storage
+  flutter_secure_storage: ^9.2.2
+
+  # Connectivity
+  connectivity_plus: ^6.0.5
+
+  # Date formatting
+  intl: ^0.19.0
+
+  # Encryption / hashing
+  crypto: ^3.0.3
+
+  # JSON serialization
+  json_annotation: ^4.9.0
+
+  # State management (simple)
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.2
 
 flutter:
+
   uses-material-design: true
+
+  assets:
+
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
