@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../models/patient_model.dart';
 import '../../models/referral_model.dart';
+import '../../models/user_model.dart'; 
 import '../../services/sqlite_service.dart';
 import '../../widgets/patient_card.dart';
 import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
-
 class DoctorDashboard extends StatefulWidget {
   final UserModel user;
   const DoctorDashboard({super.key, required this.user});
