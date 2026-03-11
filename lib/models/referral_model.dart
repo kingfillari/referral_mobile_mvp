@@ -25,6 +25,7 @@ class ReferralModel {
     required this.createdAt,
     required this.createdBy,
   });
+
   String get patientName => 'Patient #$patientId';
   String get fromHospital => 'Hospital #$referringFacility';
   String get toHospital => 'Hospital #$receivingFacility';
@@ -74,12 +75,7 @@ class ReferralModel {
       'created_by': createdBy,
     };
   }
-extension ReferralModelExt on ReferralModel {
-  String get patientName => 'Patient #$patientId';
-  String get fromHospital => 'Hospital #$referringFacility';
-  String get toHospital => 'Hospital #$receivingFacility';
-  String get reason => clinicalSummary;
-}
+
   /// Create Referral from SQLite Map
   factory ReferralModel.fromMap(Map<String, dynamic> map) {
     return ReferralModel(
@@ -133,4 +129,12 @@ extension ReferralModelExt on ReferralModel {
   String toString() {
     return 'ReferralModel{id: $id, patientId: $patientId, priority: $priority, status: $status}';
   }
+}
+
+/// Extension must be outside the class
+extension ReferralModelExt on ReferralModel {
+  String get patientName => 'Patient #$patientId';
+  String get fromHospital => 'Hospital #$referringFacility';
+  String get toHospital => 'Hospital #$receivingFacility';
+  String get reason => clinicalSummary;
 }
