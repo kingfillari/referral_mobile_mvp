@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 /// Hospital / Facility model
-class Hospital {
+class HospitalModel {
   final int id;
   final String name;
   final String type; // Referral, General, Specialized
@@ -10,7 +10,7 @@ class Hospital {
   final String status; // Active / Inactive
   final DateTime createdAt;
 
-  Hospital({
+  HospitalModel({
     required this.id,
     required this.name,
     required this.type,
@@ -20,8 +20,8 @@ class Hospital {
     required this.createdAt,
   });
 
-  factory Hospital.fromJson(Map<String, dynamic> json) {
-    return Hospital(
+  factory HospitalModel.fromJson(Map<String, dynamic> json) {
+    return HospitalModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       type: json['type'] ?? 'General',
@@ -56,8 +56,8 @@ class Hospital {
     };
   }
 
-  factory Hospital.fromMap(Map<String, dynamic> map) {
-    return Hospital(
+  factory HospitalModel.fromMap(Map<String, dynamic> map) {
+    return HospitalModel(
       id: map['id'] ?? 0,
       name: map['name'] ?? '',
       type: map['type'] ?? 'General',
@@ -73,7 +73,7 @@ class Hospital {
   bool get isActive => status.toLowerCase() == 'active';
   bool get isInactive => status.toLowerCase() == 'inactive';
 
-  Hospital copyWith({
+  HospitalModel copyWith({
     int? id,
     String? name,
     String? type,
@@ -82,7 +82,7 @@ class Hospital {
     String? status,
     DateTime? createdAt,
   }) {
-    return Hospital(
+    return HospitalModel(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
@@ -95,6 +95,6 @@ class Hospital {
 
   @override
   String toString() {
-    return 'Hospital{id: $id, name: $name, type: $type, status: $status}';
+    return 'HospitalModel{id: $id, name: $name, type: $type, status: $status}';
   }
 }

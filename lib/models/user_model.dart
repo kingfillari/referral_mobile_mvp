@@ -2,7 +2,7 @@ import 'dart:convert';
 import '../config/roles.dart';
 
 /// User model for authentication and role management
-class User {
+class UserModel {
   final int id;
   final String name;
   final String email;
@@ -10,7 +10,7 @@ class User {
   final int facilityId;
   final String token;
 
-  User({
+  UserModel({
     required this.id,
     required this.name,
     required this.email,
@@ -20,8 +20,8 @@ class User {
   });
 
   /// Convert JSON from API to User object
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
@@ -56,8 +56,8 @@ class User {
   }
 
   /// Create User object from SQLite Map
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
       id: map['id'] ?? 0,
       name: map['name'] ?? '',
       email: map['email'] ?? '',
@@ -96,10 +96,10 @@ class User {
   String encode() => jsonEncode(toJson());
 
   /// Decode JSON string to User object
-  static User decode(String userJson) => User.fromJson(jsonDecode(userJson));
+  static UserModel decode(String userJson) => UserModel.fromJson(jsonDecode(userJson));
 
   /// Create a copy with new values
-  User copyWith({
+  UserModel copyWith({
     int? id,
     String? name,
     String? email,
@@ -107,7 +107,7 @@ class User {
     int? facilityId,
     String? token,
   }) {
-    return User(
+    return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
@@ -131,6 +131,6 @@ class User {
 
   @override
   String toString() {
-    return 'User{id: $id, name: $name, email: $email, role: $role, facilityId: $facilityId}';
+    return 'UserModel{id: $id, name: $name, email: $email, role: $role, facilityId: $facilityId}';
   }
 }

@@ -7,6 +7,7 @@ import 'screens/dashboards/nurse_dashboard.dart';
 import 'screens/dashboards/doctor_dashboard.dart';
 import 'screens/dashboards/hospital_dashboard.dart';
 import 'screens/dashboards/admin_dashboard.dart';
+import 'models/user_model.dart';
 
 /// Entry point for the RMS Mobile App
 void main() async {
@@ -14,9 +15,6 @@ void main() async {
 
   /// Initialize storage service (for JWT tokens & local user data)
   await StorageService.init();
-
-  /// Optionally, initialize SQLite or offline database here
-  // await SQLiteService.initDB();
 
   runApp(RMSApp());
 }
@@ -27,7 +25,8 @@ class RMSApp extends StatelessWidget {
 
   /// Determine initial screen based on logged-in user
   Future<Widget> _getInitialScreen() async {
-    final user = await StorageService.getUser();
+    final UserModel? user = await StorageService.getUser();
+
     if (user == null) {
       // Not logged in → go to login
       return const LoginScreen();

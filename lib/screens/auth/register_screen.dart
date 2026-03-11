@@ -34,14 +34,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      final success = await _authService.register(
+      final user = await _authService.register(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         role: _roleController.text.trim(),
       );
 
-      if (success) {
+      if (user != null) {
         final route = await _roleService.getDashboardRoute();
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, route);

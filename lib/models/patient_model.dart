@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 /// Patient model for hospital referral system
-class Patient {
+class PatientModel {
   final int id;
   final String name;
   final int age;
@@ -10,8 +10,11 @@ class Patient {
   final String address;
   final String mrn; // Medical Record Number
   final DateTime createdAt;
+  final String status; // Added
+  final String condition; // Added
 
-  Patient({
+
+  PatientModel({
     required this.id,
     required this.name,
     required this.age,
@@ -20,11 +23,13 @@ class Patient {
     required this.address,
     required this.mrn,
     required this.createdAt,
+     this.status = 'Pending', // default
+    this.condition = '', // default
   });
 
   /// Convert JSON from API to Patient
-  factory Patient.fromJson(Map<String, dynamic> json) {
-    return Patient(
+  factory PatientModel.fromJson(Map<String, dynamic> json) {
+    return PatientModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       age: json['age'] ?? 0,
@@ -33,6 +38,8 @@ class Patient {
       address: json['address'] ?? '',
       mrn: json['mrn'] ?? '',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      status: json['status'] ?? 'Pending',
+      condition: json['condition'] ?? '',
     );
   }
 
@@ -47,6 +54,8 @@ class Patient {
       'address': address,
       'mrn': mrn,
       'created_at': createdAt.toIso8601String(),
+      'status': status,
+      'condition': condition,
     };
   }
 
@@ -65,8 +74,8 @@ class Patient {
   }
 
   /// Create Patient from SQLite Map
-  factory Patient.fromMap(Map<String, dynamic> map) {
-    return Patient(
+  factory PatientModel.fromMap(Map<String, dynamic> map) {
+    return PatientModel(
       id: map['id'] ?? 0,
       name: map['name'] ?? '',
       age: map['age'] ?? 0,
@@ -74,8 +83,10 @@ class Patient {
       phone: map['phone'] ?? '',
       address: map['address'] ?? '',
       mrn: map['mrn'] ?? '',
-      createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
-    );
+createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
+      status: map['status'] ?? 'Pending',
+      condition: map['condition'] ?? '',
+          );
   }
 
   /// Validate phone number
@@ -85,7 +96,7 @@ class Patient {
   String displayLabel() => '$name, MRN: $mrn';
 
   /// Copy with new values
-  Patient copyWith({
+  PatientModel copyWith({
     int? id,
     String? name,
     int? age,
@@ -95,7 +106,7 @@ class Patient {
     String? mrn,
     DateTime? createdAt,
   }) {
-    return Patient(
+    return PatientModel(
       id: id ?? this.id,
       name: name ?? this.name,
       age: age ?? this.age,
@@ -109,6 +120,6 @@ class Patient {
 
   @override
   String toString() {
-    return 'Patient{id: $id, name: $name, mrn: $mrn, age: $age, sex: $sex}';
+    return 'PatientModel{id: $id, name: $name, mrn: $mrn, age: $age, sex: $sex}';
   }
 }

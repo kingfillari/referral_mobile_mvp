@@ -3,7 +3,7 @@ import 'patient_model.dart';
 import 'user_model.dart';
 
 /// Referral model representing patient referral records
-class Referral {
+class ReferralModel {
   final int id;
   final int patientId;
   final int referringFacility;
@@ -14,7 +14,7 @@ class Referral {
   final DateTime createdAt;
   final int createdBy; // User ID who created
 
-  Referral({
+  ReferralModel({
     required this.id,
     required this.patientId,
     required this.referringFacility,
@@ -27,8 +27,8 @@ class Referral {
   });
 
   /// Convert JSON from API
-  factory Referral.fromJson(Map<String, dynamic> json) {
-    return Referral(
+  factory ReferralModel.fromJson(Map<String, dynamic> json) {
+    return ReferralModel(
       id: json['id'] ?? 0,
       patientId: json['patient_id'] ?? 0,
       referringFacility: json['referring_facility'] ?? 0,
@@ -70,10 +70,15 @@ class Referral {
       'created_by': createdBy,
     };
   }
-
+extension ReferralModelExt on ReferralModel {
+  String get patientName => 'Patient #$patientId';
+  String get fromHospital => 'Hospital #$referringFacility';
+  String get toHospital => 'Hospital #$receivingFacility';
+  String get reason => clinicalSummary;
+}
   /// Create Referral from SQLite Map
-  factory Referral.fromMap(Map<String, dynamic> map) {
-    return Referral(
+  factory ReferralModel.fromMap(Map<String, dynamic> map) {
+    return ReferralModel(
       id: map['id'] ?? 0,
       patientId: map['patient_id'] ?? 0,
       referringFacility: map['referring_facility'] ?? 0,
@@ -96,7 +101,7 @@ class Referral {
       'Referral for $patientName - $priority - $status';
 
   /// Copy with new values
-  Referral copyWith({
+  ReferralModel copyWith({
     int? id,
     int? patientId,
     int? referringFacility,
@@ -107,7 +112,7 @@ class Referral {
     DateTime? createdAt,
     int? createdBy,
   }) {
-    return Referral(
+    return ReferralModel(
       id: id ?? this.id,
       patientId: patientId ?? this.patientId,
       referringFacility: referringFacility ?? this.referringFacility,
@@ -122,6 +127,6 @@ class Referral {
 
   @override
   String toString() {
-    return 'Referral{id: $id, patientId: $patientId, priority: $priority, status: $status}';
+    return 'ReferralModel{id: $id, patientId: $patientId, priority: $priority, status: $status}';
   }
 }

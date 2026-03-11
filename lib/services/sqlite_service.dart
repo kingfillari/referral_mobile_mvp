@@ -3,6 +3,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/patient_model.dart';
 import '../models/referral_model.dart';
+import '../models/user_model.dart';
+import '../models/hospital_model.dart';
 
 /// SQLite service for offline storage
 class SQLiteService {
@@ -53,35 +55,76 @@ class SQLiteService {
         created_at TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE users(
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        role TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE hospitals(
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        location TEXT
+      )
+    ''');
   }
 
   // Patient CRUD
-  Future<int> insertPatient(Patient patient) async {
+  Future<int> insertPatient(PatientModel patient) async {
     final db = await database;
     return await db.insert('patients', patient.toMap());
   }
 
-  Future<List<Patient>> getPatients() async {
+  Future<List<PatientModel>> getPatients() async {
     final db = await database;
     final maps = await db.query('patients');
-    return List.generate(maps.length, (i) => Patient.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => PatientModel.fromMap(maps[i]));
   }
 
   // Referral CRUD
-  Future<int> insertReferral(Referral referral) async {
+  Future<int> insertReferral(ReferralModel referral) async {
     final db = await database;
     return await db.insert('referrals', referral.toMap());
   }
 
-  Future<List<Referral>> getReferrals() async {
+  Future<List<ReferralModel>> getReferrals() async {
     final db = await database;
     final maps = await db.query('referrals');
-    return List.generate(maps.length, (i) => Referral.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => ReferralModel.fromMap(maps[i]));
+  }
+
+  Future<int> updateReferralStatus(int id, String status) async {
+    final db = await database;
+    return await db.update(
+      'referrals',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> clearDatabase() async {
     final db = await database;
     await db.delete('patients');
     await db.delete('referrals');
+    await db.delete('users');
+    await db.delete('hospitals');
+  }
+
+  /// Added methods to fix AdminDashboard errors
+  Future<List<UserModel>> getUsers() async {
+    final db = await database;
+    final maps = await db.query('users');
+    return maps.map((m) => UserModel.fromMap(m)).toList();
+  }
+
+  Future<List<HospitalModel>> getHospitals() async {
+    final db = await database;
+    final maps = await db.query('hospitals');
+    return maps.map((m) => HospitalModel.fromMap(m)).toList();
   }
 }

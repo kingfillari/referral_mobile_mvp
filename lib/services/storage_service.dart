@@ -4,7 +4,22 @@ import 'dart:convert';
 
 /// Secure storage for JWT token and user info
 class StorageService {
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static final StorageService _instance = StorageService._internal();
+  factory StorageService() => _instance;
+  StorageService._internal();
+
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  /// Static helper to initialize
+  static Future<void> init() async {
+    // Nothing special needed for flutter_secure_storage, just placeholder
+    _instance;
+  }
+
+  /// Static getter for current user
+  static Future<UserModel?> getUser() async {
+    return await _instance._getUser();
+  }
 
   Future<void> saveToken(String token) async {
     await _secureStorage.write(key: 'jwt_token', value: token);
@@ -22,7 +37,7 @@ class StorageService {
     await _secureStorage.write(key: 'current_user', value: jsonEncode(user.toJson()));
   }
 
-  Future<UserModel?> getUser() async {
+  Future<UserModel?> _getUser() async {
     final data = await _secureStorage.read(key: 'current_user');
     if (data != null) return UserModel.fromJson(jsonDecode(data));
     return null;

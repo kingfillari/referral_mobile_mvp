@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 /// Appointment model for referred patients
-class Appointment {
+class AppointmentModel {
   final int id;
   final int referralId;
   final int patientId;
@@ -11,7 +11,7 @@ class Appointment {
   final String notes;
   final DateTime createdAt;
 
-  Appointment({
+  AppointmentModel({
     required this.id,
     required this.referralId,
     required this.patientId,
@@ -22,8 +22,8 @@ class Appointment {
     required this.createdAt,
   });
 
-  factory Appointment.fromJson(Map<String, dynamic> json) {
-    return Appointment(
+  factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    return AppointmentModel(
       id: json['id'] ?? 0,
       referralId: json['referral_id'] ?? 0,
       patientId: json['patient_id'] ?? 0,
@@ -61,8 +61,8 @@ class Appointment {
     };
   }
 
-  factory Appointment.fromMap(Map<String, dynamic> map) {
-    return Appointment(
+  factory AppointmentModel.fromMap(Map<String, dynamic> map) {
+    return AppointmentModel(
       id: map['id'] ?? 0,
       referralId: map['referral_id'] ?? 0,
       patientId: map['patient_id'] ?? 0,
@@ -81,7 +81,7 @@ class Appointment {
   String displayLabel(String patientName) => '$patientName - $department on ${appointmentDate.toLocal()}';
 
   /// Copy with new values
-  Appointment copyWith({
+  AppointmentModel copyWith({
     int? id,
     int? referralId,
     int? patientId,
@@ -91,7 +91,7 @@ class Appointment {
     String? notes,
     DateTime? createdAt,
   }) {
-    return Appointment(
+    return AppointmentModel(
       id: id ?? this.id,
       referralId: referralId ?? this.referralId,
       patientId: patientId ?? this.patientId,
@@ -105,6 +105,6 @@ class Appointment {
 
   @override
   String toString() {
-    return 'Appointment{id: $id, patientId: $patientId, doctorId: $doctorId, date: $appointmentDate}';
+    return 'AppointmentModel{id: $id, patientId: $patientId, doctorId: $doctorId, date: $appointmentDate}';
   }
 }

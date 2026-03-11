@@ -31,12 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final success = await _authService.login(
+      final user = await _authService.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
-      if (success) {
+      if (user != null) {
         final route = await _roleService.getDashboardRoute();
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, route);

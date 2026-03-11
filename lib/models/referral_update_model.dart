@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 /// Tracks updates to a referral
-class ReferralUpdate {
+class ReferralUpdateModel {
   final int id;
   final int referralId;
   final String status; // Updated status: Pending / Accepted / Rejected / Completed

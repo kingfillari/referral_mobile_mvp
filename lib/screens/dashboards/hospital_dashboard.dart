@@ -5,7 +5,9 @@ import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
 
 class HospitalDashboard extends StatefulWidget {
-  const HospitalDashboard({super.key});
+    final UserModel user;
+
+  const HospitalDashboard({super.key, required this.user});
 
   @override
   State<HospitalDashboard> createState() => _HospitalDashboardState();
@@ -75,7 +77,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'Pending Referrals',
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               _buildReferralList(),
