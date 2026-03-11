@@ -7,7 +7,8 @@ import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
 
 class DoctorDashboard extends StatefulWidget {
-  const DoctorDashboard({super.key});
+  final UserModel user;
+  const DoctorDashboard({super.key, required this.user});
 
   @override
   State<DoctorDashboard> createState() => _DoctorDashboardState();

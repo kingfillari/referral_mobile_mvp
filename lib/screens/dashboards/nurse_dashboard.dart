@@ -7,7 +7,7 @@ import '../../widgets/custom_button.dart';
 class NurseDashboard extends StatefulWidget {
   final UserModel user;
 
-  const NurseDashboard({super.key});
+  const NurseDashboard({super.key, required this.user});
 
   @override
   State<NurseDashboard> createState() => _NurseDashboardState();

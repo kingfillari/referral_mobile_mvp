@@ -25,6 +25,10 @@ class ReferralModel {
     required this.createdAt,
     required this.createdBy,
   });
+  String get patientName => 'Patient #$patientId';
+  String get fromHospital => 'Hospital #$referringFacility';
+  String get toHospital => 'Hospital #$receivingFacility';
+  String get reason => clinicalSummary;
 
   /// Convert JSON from API
   factory ReferralModel.fromJson(Map<String, dynamic> json) {

@@ -107,10 +107,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
               const SizedBox(height: 20),
-              CustomButton(
-                text: _loading ? 'Logging in...' : 'Login',
-                onPressed: _loading ? null : _login,
-              ),
+             CustomButton(
+  text: _loading ? 'Logging in...' : 'Login',
+  onPressed: _loading ? null : () {
+    _login();
+  },
+),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

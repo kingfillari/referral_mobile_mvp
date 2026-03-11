@@ -5,7 +5,8 @@ import '../../models/hospital_model.dart';
 import '../../widgets/custom_button.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+  final UserModel user;
+  const AdminDashboard({super.key, required this.user});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();

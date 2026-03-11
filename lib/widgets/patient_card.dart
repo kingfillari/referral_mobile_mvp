@@ -145,7 +145,7 @@ class PatientCard extends StatelessWidget {
             const SizedBox(height: 10),
 
             _buildInfoRow("Age", patient.age.toString()),
-            _buildInfoRow("Gender", patient.gender),
+            _buildInfoRow("Gender", patient.sex),
             _buildInfoRow("Condition", patient.condition),
 
             const SizedBox(height: 8),
