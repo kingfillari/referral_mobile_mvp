@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/referral_model.dart';
+import '../../models/user_model.dart'; 
 import '../../services/sqlite_service.dart';
 import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
