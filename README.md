@@ -212,7 +212,7 @@ The mobile application follows a structured workflow:
 ### 1. Clone the Repository
 
 ```
-git clone https://github.com/yourusername/referral_mobile_mvp.git
+git clone https://github.com/kingfillari/referral_mobile_mvp
 ```
 
 ### 2. Navigate to the Project
