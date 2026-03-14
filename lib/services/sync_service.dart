@@ -1,27 +1,32 @@
+// lib/services/sync_service.dart
 import 'sqlite_service.dart';
 import 'api_service.dart';
 import '../models/patient_model.dart';
 import '../models/referral_model.dart';
 
-/// Handles offline synchronization
+/// Handles offline synchronization for patients and referrals
 class SyncService {
   final SQLiteService _sqlite = SQLiteService();
   final ApiService _api = ApiService();
 
-  /// Sync patients
-  Future<void> syncPatients() async {
+  /// Sync all patients to the backend
+  Future<void> syncPatients({int? tenantId}) async {
     final patients = await _sqlite.getPatients();
     for (var patient in patients) {
       try {
-        await _api.post('/patients', patient.toJson());
+        final patientMap = patient.toJson();
+        if (tenantId != null) {
+          patientMap['tenantId'] = tenantId;
+        }
+        await _api.post('/patients', patientMap);
       } catch (e) {
         print('Sync patient failed: $e');
       }
     }
   }
 
-  /// Sync referrals for a tenant
-  Future<void> syncReferrals(int tenantId) async {
+  /// Sync all referrals to the backend, including tenant ID
+  Future<void> syncReferrals({required int tenantId}) async {
     final referrals = await _sqlite.getReferrals();
     for (var referral in referrals) {
       try {
@@ -33,9 +38,12 @@ class SyncService {
       }
     }
   }
-  /// Full sync
-  Future<void> syncAll() async {
-    await syncPatients();
-    await syncReferrals();
+
+  /// Full sync (patients + referrals)
+  Future<void> syncAll({int? tenantId}) async {
+    await syncPatients(tenantId: tenantId);
+    if (tenantId != null) {
+      await syncReferrals(tenantId: tenantId);
+    }
   }
 }
