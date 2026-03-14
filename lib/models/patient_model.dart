@@ -9,6 +9,7 @@ class PatientModel {
   final String phone;
   final String address;
   final String mrn; // Medical Record Number
+  final int tenantId;
   final DateTime createdAt;
   final String status; // Added
   final String condition; // Added
@@ -22,6 +23,7 @@ class PatientModel {
     required this.phone,
     required this.address,
     required this.mrn,
+    final int tenantId;
     required this.createdAt,
      this.status = 'Pending', // default
     this.condition = '', // default
@@ -37,6 +39,7 @@ class PatientModel {
       phone: json['phone'] ?? '',
       address: json['address'] ?? '',
       mrn: json['mrn'] ?? '',
+       tenantId: json['tenantId'] ?? 0,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       status: json['status'] ?? 'Pending',
       condition: json['condition'] ?? '',
@@ -53,6 +56,7 @@ class PatientModel {
       'phone': phone,
       'address': address,
       'mrn': mrn,
+      'tenantId': tenantId,
       'created_at': createdAt.toIso8601String(),
       'status': status,
       'condition': condition,
