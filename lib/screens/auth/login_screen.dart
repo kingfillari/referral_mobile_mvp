@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
-import '../../services/role_service.dart';
-import '../../utils/validators.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_button.dart';
+import '../../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,8 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   final AuthService _authService = AuthService();
-  final RoleService _roleService = RoleService();
 
   bool _loading = false;
   String? _error;
@@ -37,17 +36,17 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (user != null) {
-        final route = await _roleService.getDashboardRoute();
+        final route = _authService.getDashboardRoute(user);
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, route);
       } else {
         setState(() {
-          _error = 'Invalid credentials';
+          _error = 'Invalid login credentials or user not registered';
         });
       }
     } catch (e) {
       setState(() {
-        _error = 'Login failed: $e';
+        _error = 'Error: $e';
       });
     } finally {
       setState(() {
@@ -74,17 +73,17 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
               const Text(
-                'Welcome Back!',
+                'Welcome Back',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               const Text(
-                'Sign in to continue managing patient referrals',
-                textAlign: TextAlign.center,
+                'Login to access your dashboard',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               CustomInputField(
@@ -103,16 +102,15 @@ class _LoginScreenState extends State<LoginScreen> {
               if (_error != null)
                 Text(
                   _error!,
-                  style: const TextStyle(color: Colors.red),
                   textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
                 ),
               const SizedBox(height: 20),
-             CustomButton(
-  text: _loading ? 'Logging in...' : 'Login',
-  onPressed: _loading ? null : () {
-    _login();
-  },
-),
+              CustomButton(
+                text: _loading ? 'Logging in...' : 'Login',
+                loading: _loading,
+                onPressed: _login,
+              ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

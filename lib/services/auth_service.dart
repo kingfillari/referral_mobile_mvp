@@ -13,17 +13,17 @@ class AuthService {
   Future<UserModel?> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.loginEndpoint),
+        Uri.parse(ApiConfig.login),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final user = UserModel.fromJson(data['user']);
-        final token = data['token'];
+        // ✅ Fixed: read 'data' and 'access_token'
+        final Map<String, dynamic> responseData = jsonDecode(response.body)['data'];
+        final user = UserModel.fromJson(responseData['user']);
+        final token = responseData['access_token'];
 
-        // Store token securely
         await _storage.saveToken(token);
         await _storage.saveUser(user);
 
@@ -38,31 +38,67 @@ class AuthService {
     }
   }
 
-  /// Logout user and clear storage
-  Future<void> logout() async {
-    await _storage.clearToken();
-    await _storage.clearUser();
+  /// Register user
+  Future<UserModel?> register({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.register),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'fullName': name,  // NestJS expects "fullName"
+          'email': email,
+          'password': password,
+          'role': role.toUpperCase(), // ADMIN, DOCTOR, NURSE, HOSPITAL
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // ✅ Fixed: read 'data' and 'access_token'
+        final Map<String, dynamic> responseData = jsonDecode(response.body)['data'];
+
+        if (responseData['user'] == null || responseData['access_token'] == null) {
+          debugPrint('Register failed: Missing user or token in response');
+          return null;
+        }
+
+        final user = UserModel.fromJson(responseData['user']);
+        final token = responseData['access_token'];
+
+        await _storage.saveToken(token);
+        await _storage.saveUser(user);
+
+        return user;
+      } else {
+        debugPrint('Register failed: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Register exception: $e');
+      return null;
+    }
   }
 
-  /// Get current user from storage
+  /// Logout user
+  Future<void> logout() async {
+    await _storage.clearAll();
+  }
+
+  /// Get currently saved user
   Future<UserModel?> getCurrentUser() async {
     return await _storage.getUser();
   }
 
-  /// Check if user is authenticated
-  Future<bool> isAuthenticated() async {
-    final token = await _storage.getToken();
-    return token != null && token.isNotEmpty;
-  }
-
   /// Get JWT token
-  Future<String?> getToken() async {
-    return await _storage.getToken();
-  }
+  Future<String?> getToken() async => await _storage.getToken();
 
-  /// Route user based on role
+  /// Determine dashboard route based on role
   String getDashboardRoute(UserModel user) {
-    switch (user.role) {
+    switch (user.role.toUpperCase()) {
       case 'NURSE':
         return '/nurse-dashboard';
       case 'DOCTOR':

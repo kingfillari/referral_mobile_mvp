@@ -2,7 +2,7 @@
 /// Contains all backend endpoints for REST API communication
 class ApiConfig {
   /// Base URL for backend API (update according to your environment)
-  static const String baseUrl = "https://rms-backend.example.com/api";
+static const String baseUrl = "http://10.181.1.45:3000";
 
   /// Authentication endpoints
   static const String login = "$baseUrl/auth/login";

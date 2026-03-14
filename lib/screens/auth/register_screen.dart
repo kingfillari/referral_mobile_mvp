@@ -42,12 +42,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (user != null) {
-        final route = await _roleService.getDashboardRoute();
+        final route = _authService.getDashboardRoute(user);
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, route);
       } else {
         setState(() {
-          _error = 'Registration failed';
+          _error = 'Registration failed. Please check your data.';
         });
       }
     } catch (e) {
@@ -73,6 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final roles = _roleService.getAllRoles();
+    _roleController.text = roles.first; // default role
 
     return Scaffold(
       appBar: AppBar(title: const Text('RMS Register')),
@@ -118,8 +119,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               DropdownButtonFormField<String>(
                 value: roles.first,
                 items: roles
-                    .map((role) =>
-                        DropdownMenuItem(value: role, child: Text(role)))
+                    .map((role) => DropdownMenuItem(
+                          value: role,
+                          child: Text(role),
+                        ))
                     .toList(),
                 onChanged: (value) {
                   _roleController.text = value!;
@@ -139,7 +142,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 20),
               CustomButton(
                 text: _loading ? 'Registering...' : 'Register',
-                onPressed: _loading ? null : _register,
+                loading: _loading,
+                onPressed: _register,
               ),
               const SizedBox(height: 20),
               Row(

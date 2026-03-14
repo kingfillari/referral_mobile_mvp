@@ -16,11 +16,6 @@ class StorageService {
     // No special initialization needed for flutter_secure_storage
   }
 
-  /// Static helper to get the current user
-  static Future<UserModel?> getUser() async {
-    return await _instance._getUser();
-  }
-
   /// Save JWT token
   Future<void> saveToken(String token) async {
     await _secureStorage.write(key: 'jwt_token', value: token);
@@ -44,8 +39,8 @@ class StorageService {
     );
   }
 
-  /// Internal method to get current user
-  Future<UserModel?> _getUser() async {
+  /// Get current user (instance method)
+  Future<UserModel?> getUser() async {   // ✅ fixed
     final data = await _secureStorage.read(key: 'current_user');
     if (data != null) return UserModel.fromJson(jsonDecode(data));
     return null;
