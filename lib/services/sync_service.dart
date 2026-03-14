@@ -20,18 +20,19 @@ class SyncService {
     }
   }
 
-  /// Sync referrals
-  Future<void> syncReferrals() async {
+  /// Sync referrals for a tenant
+  Future<void> syncReferrals(int tenantId) async {
     final referrals = await _sqlite.getReferrals();
     for (var referral in referrals) {
       try {
-        await _api.post('/referrals', referral.toJson());
+        final referralMap = referral.toJson();
+        referralMap['tenantId'] = tenantId;
+        await _api.post('/referrals', referralMap);
       } catch (e) {
         print('Sync referral failed: $e');
       }
     }
   }
-
   /// Full sync
   Future<void> syncAll() async {
     await syncPatients();
