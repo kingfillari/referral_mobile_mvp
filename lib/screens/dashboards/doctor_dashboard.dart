@@ -1,92 +1,142 @@
 import 'package:flutter/material.dart';
+import '../../models/patient_model.dart';
 import '../../models/referral_model.dart';
-import '../../models/user_model.dart'; 
+import '../../models/user_model.dart';
 import '../../services/sqlite_service.dart';
+import '../../services/sync_service.dart';
+import '../../widgets/patient_card.dart';
 import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
 
-class HospitalDashboard extends StatefulWidget {
-    final UserModel user;
-
-  const HospitalDashboard({super.key, required this.user});
+class DoctorDashboard extends StatefulWidget {
+  final UserModel user;
+  const DoctorDashboard({super.key, required this.user});
 
   @override
-  State<HospitalDashboard> createState() => _HospitalDashboardState();
+  State<DoctorDashboard> createState() => _DoctorDashboardState();
 }
 
-class _HospitalDashboardState extends State<HospitalDashboard> {
+class _DoctorDashboardState extends State<DoctorDashboard> {
   final SQLiteService _db = SQLiteService();
+  final SyncService _sync = SyncService();
+
+  List<PatientModel> _patients = [];
   List<ReferralModel> _referrals = [];
-  bool _loading = true;
+  bool _loadingPatients = true;
+  bool _loadingReferrals = true;
 
   @override
   void initState() {
     super.initState();
+    _loadPatients();
     _loadReferrals();
   }
 
-  Future<void> _loadReferrals() async {
+  Future<void> _loadPatients() async {
+    setState(() => _loadingPatients = true);
+    final patients = await _db.getPatients();
     setState(() {
-      _loading = true;
-    });
-    final referrals = await _db.getReferrals();
-    setState(() {
-      _referrals = referrals;
-      _loading = false;
+      _patients = patients;
+      _loadingPatients = false;
     });
   }
 
-  Widget _buildReferralList() {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+  Future<void> _loadReferrals() async {
+    setState(() => _loadingReferrals = true);
+    final referrals = await _db.getReferrals();
+    setState(() {
+      _referrals = referrals;
+      _loadingReferrals = false;
+    });
+  }
+
+  /// Manual sync
+  Future<void> _syncAll() async {
+    try {
+      await _sync.syncAll(tenantId: widget.user.tenantId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sync completed!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sync failed: $e')),
+      );
     }
-    if (_referrals.isEmpty) {
-      return const Center(child: Text('No referrals pending'));
-    }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _referrals.length,
-      itemBuilder: (context, index) {
-        final r = _referrals[index];
-        return ReferralCard(
-          referral: r,
-          onAccept: () async {
-            await _db.updateReferralStatus(r.id, 'Accepted');
-            _loadReferrals();
-          },
-          onReject: () async {
-            await _db.updateReferralStatus(r.id, 'Rejected');
-            _loadReferrals();
-          },
-        );
-      },
+  }
+
+  Widget _buildSection(String title, List<Widget> children) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ...children,
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hospital Dashboard')),
+      appBar: AppBar(title: const Text('Doctor Dashboard')),
       body: RefreshIndicator(
-        onRefresh: _loadReferrals,
+        onRefresh: () async {
+          await _loadPatients();
+          await _loadReferrals();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
+              // Sync Button
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Pending Referrals',
-                  style: Theme.of(context).textTheme.titleLarge,
+                child: ElevatedButton(
+                  onPressed: _syncAll,
+                  child: const Text('Sync Now'),
                 ),
               ),
-              _buildReferralList(),
+
+              _buildSection(
+                'My Patients',
+                _loadingPatients
+                    ? [const Center(child: CircularProgressIndicator())]
+                    : _patients.map((p) => PatientCard(patient: p)).toList(),
+              ),
+              _buildSection(
+                'Referrals to Review',
+                _loadingReferrals
+                    ? [const Center(child: CircularProgressIndicator())]
+                    : _referrals
+                        .map((r) => ReferralCard(
+                              referral: r,
+                              onAccept: () async {
+                                await _db.updateReferralStatus(r.id, 'Accepted');
+                                _loadReferrals();
+                              },
+                              onReject: () async {
+                                await _db.updateReferralStatus(r.id, 'Rejected');
+                                _loadReferrals();
+                              },
+                            ))
+                        .toList(),
+              ),
               const SizedBox(height: 20),
               CustomButton(
-                text: 'View All Referrals',
+                text: 'Create Referral',
                 onPressed: () {
-                  Navigator.pushNamed(context, '/referral-list');
+                  Navigator.pushNamed(context, '/create-referral');
                 },
               ),
             ],
