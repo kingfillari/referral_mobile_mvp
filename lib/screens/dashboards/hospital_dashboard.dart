@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import '../../models/referral_model.dart';
 import '../../models/user_model.dart'; 
 import '../../services/sqlite_service.dart';
+import '../../services/sync_service.dart';
 import '../../widgets/referral_card.dart';
 import '../../widgets/custom_button.dart';
 
 class HospitalDashboard extends StatefulWidget {
-    final UserModel user;
+  final UserModel user;
 
   const HospitalDashboard({super.key, required this.user});
 
@@ -16,8 +17,11 @@ class HospitalDashboard extends StatefulWidget {
 
 class _HospitalDashboardState extends State<HospitalDashboard> {
   final SQLiteService _db = SQLiteService();
+  final SyncService _syncService = SyncService();
+
   List<ReferralModel> _referrals = [];
   bool _loading = true;
+  bool _syncing = false;
 
   @override
   void initState() {
@@ -26,9 +30,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   }
 
   Future<void> _loadReferrals() async {
-    setState(() {
-      _loading = true;
-    });
+    setState(() => _loading = true);
     final referrals = await _db.getReferrals();
     setState(() {
       _referrals = referrals;
@@ -36,13 +38,27 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     });
   }
 
+  Future<void> _syncData() async {
+    setState(() => _syncing = true);
+    try {
+      final tenantId = widget.user.tenantId ?? 1;
+      await _syncService.syncAll(tenantId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sync completed!')),
+      );
+      _loadReferrals();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sync failed: $e')),
+      );
+    } finally {
+      setState(() => _syncing = false);
+    }
+  }
+
   Widget _buildReferralList() {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_referrals.isEmpty) {
-      return const Center(child: Text('No referrals pending'));
-    }
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_referrals.isEmpty) return const Center(child: Text('No referrals pending'));
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -67,7 +83,17 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hospital Dashboard')),
+      appBar: AppBar(
+        title: const Text('Hospital Dashboard'),
+        actions: [
+          IconButton(
+            icon: _syncing
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.sync),
+            onPressed: _syncing ? null : _syncData,
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: _loadReferrals,
         child: SingleChildScrollView(
@@ -88,6 +114,11 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
                 onPressed: () {
                   Navigator.pushNamed(context, '/referral-list');
                 },
+              ),
+              const SizedBox(height: 10),
+              CustomButton(
+                text: _syncing ? 'Syncing...' : 'Sync Now',
+                onPressed: _syncing ? null : _syncData,
               ),
             ],
           ),
