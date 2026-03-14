@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/sqlite_service.dart';
+import '../../services/sync_service.dart';
 import '../../models/user_model.dart';
 import '../../models/hospital_model.dart';
 import '../../widgets/custom_button.dart';
@@ -14,10 +15,13 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   final SQLiteService _db = SQLiteService();
+  final SyncService _syncService = SyncService();
+
   List<UserModel> _users = [];
   List<HospitalModel> _hospitals = [];
   bool _loadingUsers = true;
   bool _loadingHospitals = true;
+  bool _syncing = false; // New: sync state
 
   @override
   void initState() {
@@ -48,6 +52,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
     });
   }
 
+  Future<void> _syncData() async {
+    setState(() => _syncing = true);
+    try {
+      final tenantId = widget.user.tenantId ?? 1; // use tenantId from user
+      await _syncService.syncAll(tenantId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sync completed!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sync failed: $e')),
+      );
+    } finally {
+      setState(() => _syncing = false);
+    }
+  }
+
   Widget _buildSection(String title, List<Widget> children) {
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -73,7 +94,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: _syncing
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.sync),
+            onPressed: _syncing ? null : _syncData,
+            tooltip: 'Sync Data',
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -113,6 +145,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onPressed: () {
                 Navigator.pushNamed(context, '/facility-management');
               },
+            ),
+            const SizedBox(height: 20),
+            // Manual sync button in body
+            CustomButton(
+              text: _syncing ? 'Syncing...' : 'Sync Now',
+              onPressed: _syncing ? null : _syncData,
             ),
           ],
         ),
