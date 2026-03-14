@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/sqlite_service.dart';
+import '../../services/sync_service.dart';
 import '../../models/patient_model.dart';
 import '../../models/user_model.dart'; 
 import '../../widgets/patient_card.dart';
@@ -16,8 +17,11 @@ class NurseDashboard extends StatefulWidget {
 
 class _NurseDashboardState extends State<NurseDashboard> {
   final SQLiteService _db = SQLiteService();
+  final SyncService _syncService = SyncService();
+
   List<PatientModel> _patients = [];
   bool _loading = true;
+  bool _syncing = false;
 
   @override
   void initState() {
@@ -26,9 +30,7 @@ class _NurseDashboardState extends State<NurseDashboard> {
   }
 
   Future<void> _loadPatients() async {
-    setState(() {
-      _loading = true;
-    });
+    setState(() => _loading = true);
     final patients = await _db.getPatients();
     setState(() {
       _patients = patients;
@@ -36,10 +38,38 @@ class _NurseDashboardState extends State<NurseDashboard> {
     });
   }
 
+  Future<void> _syncData() async {
+    setState(() => _syncing = true);
+    try {
+      final tenantId = widget.user.tenantId ?? 1;
+      await _syncService.syncAll(tenantId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sync completed!')),
+      );
+      _loadPatients();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sync failed: $e')),
+      );
+    } finally {
+      setState(() => _syncing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nurse Dashboard')),
+      appBar: AppBar(
+        title: const Text('Nurse Dashboard'),
+        actions: [
+          IconButton(
+            icon: _syncing
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.sync),
+            onPressed: _syncing ? null : _syncData,
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -52,11 +82,21 @@ class _NurseDashboardState extends State<NurseDashboard> {
                 },
               ),
             ),
-      floatingActionButton: CustomButton(
-        text: 'Register Patient',
-        onPressed: () {
-          Navigator.pushNamed(context, '/patient-registration');
-        },
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomButton(
+            text: 'Register Patient',
+            onPressed: () {
+              Navigator.pushNamed(context, '/patient-registration');
+            },
+          ),
+          const SizedBox(height: 10),
+          CustomButton(
+            text: _syncing ? 'Syncing...' : 'Sync Now',
+            onPressed: _syncing ? null : _syncData,
+          ),
+        ],
       ),
     );
   }
