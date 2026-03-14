@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'config/app_theme.dart';
 import 'config/roles.dart';
 import 'services/storage_service.dart';
+import 'services/sync_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/dashboards/nurse_dashboard.dart';
@@ -20,6 +21,8 @@ void main() async {
 class RMSApp extends StatelessWidget {
   RMSApp({Key? key}) : super(key: key);
 
+  final SyncService _syncService = SyncService();
+
   /// Determine initial screen based on logged-in user
   Future<Widget> _getInitialScreen() async {
     final UserModel? user = await StorageService().getUser();
@@ -27,6 +30,12 @@ class RMSApp extends StatelessWidget {
     if (user == null) {
       return const LoginScreen();
     } else {
+      // Automatic sync after app startup
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final tenantId = user.tenantId ?? 1; // default if null
+        await _syncService.syncAll(tenantId);
+      });
+
       switch (user.role.toUpperCase()) {
         case UserRoles.nurse:
           return NurseDashboard(user: user);
