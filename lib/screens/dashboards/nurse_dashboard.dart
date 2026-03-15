@@ -17,10 +17,11 @@ class NurseDashboard extends StatefulWidget {
 
 class _NurseDashboardState extends State<NurseDashboard> {
   final SQLiteService _db = SQLiteService();
-  final SyncService _sync = SyncService();
+  final SyncService _syncService = SyncService();
 
   List<PatientModel> _patients = [];
   bool _loading = true;
+  bool _syncing = false;
 
   @override
   void initState() {
@@ -37,56 +38,65 @@ class _NurseDashboardState extends State<NurseDashboard> {
     });
   }
 
-  Future<void> _syncAll() async {
+  Future<void> _syncData() async {
+    setState(() => _syncing = true);
     try {
-      await _sync.syncAll(tenantId: widget.user.tenantId);
+      final tenantId = widget.user.tenantId ?? 1;
+      await _syncService.syncAll(tenantId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sync completed!')),
       );
+      _loadPatients();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Sync failed: $e')),
       );
+    } finally {
+      setState(() => _syncing = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nurse Dashboard')),
-      body: RefreshIndicator(
-        onRefresh: _loadPatients,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: _syncAll,
-                  child: const Text('Sync Now'),
-                ),
-              ),
-              _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _patients.length,
-                      itemBuilder: (context, index) {
-                        final patient = _patients[index];
-                        return PatientCard(patient: patient);
-                      },
-                    ),
-            ],
+      appBar: AppBar(
+        title: const Text('Nurse Dashboard'),
+        actions: [
+          IconButton(
+            icon: _syncing
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.sync),
+            onPressed: _syncing ? null : _syncData,
           ),
-        ),
+        ],
       ),
-      floatingActionButton: CustomButton(
-        text: 'Register Patient',
-        onPressed: () {
-          Navigator.pushNamed(context, '/patient-registration');
-        },
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadPatients,
+              child: ListView.builder(
+                itemCount: _patients.length,
+                itemBuilder: (context, index) {
+                  final patient = _patients[index];
+                  return PatientCard(patient: patient);
+                },
+              ),
+            ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomButton(
+            text: 'Register Patient',
+            onPressed: () {
+              Navigator.pushNamed(context, '/patient-registration');
+            },
+          ),
+          const SizedBox(height: 10),
+          CustomButton(
+            text: _syncing ? 'Syncing...' : 'Sync Now',
+            onPressed: _syncing ? null : _syncData,
+          ),
+        ],
       ),
     );
   }

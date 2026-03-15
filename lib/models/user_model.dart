@@ -7,6 +7,7 @@ class UserModel {
   final String name;
   final String email;
   final String role;
+  final int tenantID;
   final int facilityId;
   final String token;
 
@@ -15,6 +16,7 @@ class UserModel {
     required this.name,
     required this.email,
     required this.role,
+    required this.tenantID,
     required this.facilityId,
     required this.token,
   });
@@ -26,6 +28,7 @@ class UserModel {
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       role: json['role'] ?? '',
+      tenantID: json['tenant_id'] ?? 1,
       facilityId: json['facility_id'] ?? 0,
       token: json['token'] ?? '',
     );
