@@ -100,8 +100,11 @@ await syncService.syncAll(tenantId: tenantId);      ScaffoldMessenger.of(context
             icon: _syncing
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Icon(Icons.sync),
-            onPressed: _syncing ? null : _syncData,
-            tooltip: 'Sync Data',
+onPressed: _syncing
+    ? null
+    : () async {
+        await _syncData();
+      },            tooltip: 'Sync Data',
           ),
         ],
       ),
@@ -149,8 +152,11 @@ await syncService.syncAll(tenantId: tenantId);      ScaffoldMessenger.of(context
             // Manual sync button in body
             CustomButton(
               text: _syncing ? 'Syncing...' : 'Sync Now',
-              onPressed: _syncing ? null : _syncData,
-            ),
+onPressed: _syncing
+    ? null
+    : () async {
+        await _syncData();
+      },            ),
           ],
         ),
       ),

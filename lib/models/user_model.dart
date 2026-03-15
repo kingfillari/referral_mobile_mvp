@@ -7,7 +7,7 @@ class UserModel {
   final String name;
   final String email;
   final String role;
-  final int tenantID;
+  final int tenantId;
   final int facilityId;
   final String token;
 
@@ -16,7 +16,7 @@ class UserModel {
     required this.name,
     required this.email,
     required this.role,
-    required this.tenantID,
+    required this.tenantId,
     required this.facilityId,
     required this.token,
   });
@@ -28,7 +28,7 @@ class UserModel {
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       role: json['role'] ?? '',
-      tenantID: json['tenant_id'] ?? 1,
+      tenantId: json['tenantId'] ?? 1,
       facilityId: json['facility_id'] ?? 0,
       token: json['token'] ?? '',
     );
@@ -41,6 +41,7 @@ class UserModel {
       'name': name,
       'email': email,
       'role': role,
+      'tenantId': tenantId,
       'facility_id': facilityId,
       'token': token,
     };
@@ -53,6 +54,7 @@ class UserModel {
       'name': name,
       'email': email,
       'role': role,
+      'tenantId': tenantId,
       'facility_id': facilityId,
       'token': token,
     };
@@ -65,6 +67,7 @@ class UserModel {
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       role: map['role'] ?? '',
+      tenantId: map['tenantId'] ?? 1,
       facilityId: map['facility_id'] ?? 0,
       token: map['token'] ?? '',
     );
@@ -99,7 +102,8 @@ class UserModel {
   String encode() => jsonEncode(toJson());
 
   /// Decode JSON string to User object
-  static UserModel decode(String userJson) => UserModel.fromJson(jsonDecode(userJson));
+  static UserModel decode(String userJson) =>
+      UserModel.fromJson(jsonDecode(userJson));
 
   /// Create a copy with new values
   UserModel copyWith({
@@ -107,6 +111,7 @@ class UserModel {
     String? name,
     String? email,
     String? role,
+    int? tenantId,
     int? facilityId,
     String? token,
   }) {
@@ -115,6 +120,7 @@ class UserModel {
       name: name ?? this.name,
       email: email ?? this.email,
       role: role ?? this.role,
+      tenantId: tenantId ?? this.tenantId,
       facilityId: facilityId ?? this.facilityId,
       token: token ?? this.token,
     );
