@@ -42,8 +42,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     setState(() => _syncing = true);
     try {
       final tenantId = widget.user.tenantId ?? 1;
-      await _syncService.syncAll(tenantId);
-      ScaffoldMessenger.of(context).showSnackBar(
+await syncService.syncAll(tenantId: tenantId);      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sync completed!')),
       );
       _loadReferrals();

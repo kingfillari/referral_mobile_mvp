@@ -33,8 +33,7 @@ class RMSApp extends StatelessWidget {
       // Automatic sync after app startup
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final tenantId = user.tenantId ?? 1; // default if null
-        await _syncService.syncAll(tenantId);
-      });
+await syncService.syncAll(tenantId: tenantId);      });
 
       switch (user.role.toUpperCase()) {
         case UserRoles.nurse:

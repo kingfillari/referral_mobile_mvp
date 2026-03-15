@@ -14,7 +14,6 @@ class PatientModel {
   final String status; // Added
   final String condition; // Added
 
-
   PatientModel({
     required this.id,
     required this.name,
@@ -23,9 +22,9 @@ class PatientModel {
     required this.phone,
     required this.address,
     required this.mrn,
-    final int tenantId;
+    required this.tenantId,
     required this.createdAt,
-     this.status = 'Pending', // default
+    this.status = 'Pending', // default
     this.condition = '', // default
   });
 
@@ -39,7 +38,7 @@ class PatientModel {
       phone: json['phone'] ?? '',
       address: json['address'] ?? '',
       mrn: json['mrn'] ?? '',
-       tenantId: json['tenantId'] ?? 0,
+      tenantId: json['tenantId'] ?? 0,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       status: json['status'] ?? 'Pending',
       condition: json['condition'] ?? '',
@@ -73,7 +72,10 @@ class PatientModel {
       'phone': phone,
       'address': address,
       'mrn': mrn,
+      'tenantId': tenantId,
       'created_at': createdAt.toIso8601String(),
+      'status': status,
+      'condition': condition,
     };
   }
 
@@ -87,10 +89,11 @@ class PatientModel {
       phone: map['phone'] ?? '',
       address: map['address'] ?? '',
       mrn: map['mrn'] ?? '',
-createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
+      tenantId: map['tenantId'] ?? 0,
+      createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
       status: map['status'] ?? 'Pending',
       condition: map['condition'] ?? '',
-          );
+    );
   }
 
   /// Validate phone number
@@ -108,7 +111,10 @@ createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
     String? phone,
     String? address,
     String? mrn,
+    int? tenantId,
     DateTime? createdAt,
+    String? status,
+    String? condition,
   }) {
     return PatientModel(
       id: id ?? this.id,
@@ -118,7 +124,10 @@ createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
       phone: phone ?? this.phone,
       address: address ?? this.address,
       mrn: mrn ?? this.mrn,
+      tenantId: tenantId ?? this.tenantId,
       createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+      condition: condition ?? this.condition,
     );
   }
 

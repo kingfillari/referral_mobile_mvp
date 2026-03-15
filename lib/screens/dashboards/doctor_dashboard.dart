@@ -53,7 +53,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   /// Manual sync
   Future<void> _syncAll() async {
     try {
-      await _sync.syncAll(tenantId: widget.user.tenantId);
+    await _sync.syncAll(tenantId: widget.user.tenantId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sync completed!')),
       );
